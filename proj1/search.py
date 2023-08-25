@@ -77,19 +77,19 @@ def tinyMazeSearch(problem):
 
 def depthFirstSearch(problem):
     fringe = util.Stack()
-    start = (problem.getStartState(), [], [])
-    done = []
+    start = (problem.getStartState(), [])
+    visited = []
 
     fringe.push(start)
 
     while not fringe.isEmpty():
-        node, path, total = fringe.pop()
+        node, path = fringe.pop()
         if problem.isGoalState(node):
             return path
-        if not node in done:
-            done.append(node)
+        if not node in visited:
+            visited.append(node)
             for coord, move, cost in problem.getSuccessors(node):
-                fringe.push((coord, path + [move], total + [cost]))
+                fringe.push((coord, path + [move]))
 
 
 def breadthFirstSearch(problem):
@@ -110,67 +110,20 @@ def breadthFirstSearch(problem):
 
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
+    fringe = util.PriorityQueue()
+    start = (problem.getStartState(), [], 0)
+    visited = []
 
-    class SearchNode:
-        """
-        Creates node: <state, action, cost, parent_node>
-        """
+    fringe.push(start, 0)
 
-        def __init__(self, state, action=None, path_cost=0, parent=None):
-            self.state = state
-            self.action = action
-            self.parent = parent
-            if parent:
-                self.path_cost = path_cost + parent.path_cost
-            else:
-                self.path_cost = path_cost
-
-        def extract_solution(self):
-            """Gets complete path from goal state to parent node"""
-            action_path = []
-            search_node = self
-            while search_node:
-                if search_node.action:
-                    action_path.append(search_node.action)
-                search_node = search_node.parent
-            return list(reversed(action_path))
-
-        def is_in_priority_queue(self, priority_queue):
-            """Check if the node is already in the priority queue"""
-            for index, (p, c, i) in enumerate(priority_queue.heap):
-                if i.state == self.state:
-                    return True
-            else:
-                return False
-
-    start_node = SearchNode(problem.getStartState())
-
-    if problem.isGoalState(start_node.state):
-        return start_node.extract_solution()
-
-    frontier = util.PriorityQueue()  # FIFO
-    frontier.push(start_node, start_node.path_cost)
-    explored = set()
-
-    while not frontier.isEmpty():
-        node = frontier.pop()  # chooses the lowest-cost node in frontier
-
-        # goal-test
-        if problem.isGoalState(node.state):
-            return node.extract_solution()
-
-        if node.state not in explored:
-            explored.add(node.state)
-
-            successors = problem.getSuccessors(node.state)
-
-            for succ in successors:
-                child_node = SearchNode(succ[0], succ[1], succ[2], node)
-                frontier.update(child_node, child_node.path_cost)
-
-    # no solution
-    util.raiseNotDefined()
+    while not fringe.isEmpty():
+        node, path, total = fringe.pop()
+        if problem.isGoalState(node):
+            return path
+        if not node in visited:
+            visited.append(node)
+            for coord, move, cost in problem.getSuccessors(node):
+                fringe.push((coord, path + [move], total + cost), total + cost)
 
 
 def nullHeuristic(state, problem=None):
@@ -185,79 +138,20 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
 
     # class to represent SearchNode
-    class SearchNode:
-        """
-        Creates node: <state, action, f(s), g(s), h(s), parent_node>
-        """
+    fringe = util.PriorityQueue()
+    start = (problem.getStartState(), [], 0)
+    visited = []
 
-        def __init__(self, state, action=None, g=None, h=None, parent=None):
-            self.state = state
-            self.action = action
-            self.parent = parent
-            # heuristic value
-            self.h = h
-            # combined cost
-            if parent:
-                self.g = g + parent.g
-            else:
-                self.g = 0
-            # evaluation function value
-            self.f = self.g + self.h
+    fringe.push(start, 0)
 
-        def extract_solution(self):
-            """Gets complete path from goal state to parent node"""
-            action_path = []
-            search_node = self
-            while search_node:
-                if search_node.action:
-                    action_path.append(search_node.action)
-                search_node = search_node.parent
-            return list(reversed(action_path))
-
-    # make search node function
-    def make_search_node(state, action=None, cost=None, parent=None):
-        if hasattr(problem, "heuristicInfo"):
-            if parent:
-                # same parent - avoid re-calculation
-                # for reducing computations in logic
-                if parent == problem.heuristicInfo["parent"]:
-                    problem.heuristicInfo["sameParent"] = True
-                else:
-                    problem.heuristicInfo["sameParent"] = False
-            # adding parent info for reducing computations
-            problem.heuristicInfo["parent"] = parent
-        # get heuristic value
-        h_value = heuristic(state, problem)
-        return SearchNode(state, action, cost, h_value, parent)
-
-    # create open list
-    open = util.PriorityQueue()
-    node = make_search_node(problem.getStartState())
-    open.push(node, node.f)
-    closed = set()
-    best_g = {}  # maps states to numbers
-
-    # run until open list is empty
-    while not open.isEmpty():
-        node = open.pop()  # pop-min
-
-        if node.state not in closed or node.g < best_g[node.state]:
-            closed.add(node.state)
-            best_g[node.state] = node.g
-
-            # goal-test
-            if problem.isGoalState(node.state):
-                return node.extract_solution()
-
-            # expand node
-            successors = problem.getSuccessors(node.state)
-            for succ in successors:
-                child_node = make_search_node(succ[0], succ[1], succ[2], node)
-                if child_node.h < float("inf"):
-                    open.push(child_node, child_node.f)
-
-    # no solution
-    util.raiseNotDefined()
+    while not fringe.isEmpty():
+        node, path, total = fringe.pop()
+        if problem.isGoalState(node):
+            return path
+        if not node in visited:
+            visited.append(node)
+            for coord, move, cost in problem.getSuccessors(node):
+                fringe.push((coord, path + [move], total + cost), total + cost + heuristic(coord, problem))
 
 
 # Abbreviations
