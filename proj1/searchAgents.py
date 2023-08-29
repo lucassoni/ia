@@ -34,6 +34,7 @@ description for details.
 Good luck and happy searching!
 """
 
+import math
 from typing import List, Tuple, Any
 from game import Directions
 from game import Agent
@@ -424,6 +425,37 @@ class AStarFoodSearchAgent(SearchAgent):
         self.searchFunction = lambda prob: search.aStarSearch(prob, foodHeuristic)
         self.searchType = FoodSearchProblem
 
+def distanceToRectangle(player_position, top_left, bottom_right):
+    player_x, player_y = player_position
+    rect_top_left_x, rect_top_left_y = top_left
+    rect_bottom_right_x, rect_bottom_right_y = bottom_right
+    
+    if rect_top_left_x <= player_x <= rect_bottom_right_x and rect_bottom_right_y <= player_y <= rect_top_left_y:
+        return 0  # Player is inside the rectangle
+    
+    # Calculate distances along x-axis and y-axis
+    x_distance = max(0, max(rect_top_left_x - player_x, player_x - rect_bottom_right_x))
+    y_distance = max(0, max(player_y - rect_top_left_y, rect_bottom_right_y - player_y))
+    
+    # Calculate Euclidean distance
+    min_distance = math.sqrt(x_distance**2 + y_distance**2)
+    return min_distance
+
+def findEnclosingRectangle(points):
+    if not points:
+        return None
+
+    min_x = min(point[0] for point in points)
+    max_x = max(point[0] for point in points)
+    min_y = min(point[1] for point in points)
+    max_y = max(point[1] for point in points)
+
+    top_left = (min_x, max_y)
+    bottom_right = (max_x, min_y)
+
+    return top_left, bottom_right
+
+
 def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     Your heuristic for the FoodSearchProblem goes here.
@@ -453,7 +485,14 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     problem.heuristicInfo['wallCount']
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
+    points = foodGrid.asList()
+    if (foodGrid.count() != 0):
+        rectangle = findEnclosingRectangle(points)
+        dist = distanceToRectangle(position, rectangle[0], rectangle[1])
+    
+        rectangleWidth = rectangle[1][0] - rectangle[0][0]
+        rectangleHeight = rectangle[0][1] - rectangle[1][1]
+        return dist + rectangleHeight + rectangleWidth
     return 0
 
 class ClosestDotSearchAgent(SearchAgent):
