@@ -188,9 +188,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return maxValue, max_action
 
     def minValue(self, gameState, index, depth):
-        """
-        Returns the min utility value-action for min-agent
-        """
         legalMoves = gameState.getLegalActions(index)
         minValue = float("inf")
         min_action = ""
@@ -220,7 +217,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     Your minimax agent with alpha-beta pruning (question 3)
     """
 
-    def getAction(self, gameState: GameState):
+    def getAction(self, gameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
@@ -228,12 +225,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return self.getValue(gameState, 0, 0, float("-inf"), float("inf"))[1]
 
     def getValue(self, gameState, index, depth, alpha, beta):
-        """
-        Returns value as pair of [action, score] based on the different cases:
-        1. Terminal state
-        2. Max-agent
-        3. Min-agent
-        """
         if (
             len(gameState.getLegalActions(index)) == 0
             or depth == self.depth
@@ -245,13 +236,9 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         if index == 0:
             return self.maxValue(gameState, index, depth, alpha, beta)
 
-        else:
-            return self.minValue(gameState, index, depth, alpha, beta)
+        return self.minValue(gameState, index, depth, alpha, beta)
 
     def maxValue(self, gameState, index, depth, alpha, beta):
-        """
-        Returns the max utility action-score for max-agent with alpha-beta pruning
-        """
         legalMoves = gameState.getLegalActions(index)
         maxValue = float("-inf")
         max_action = ""
@@ -281,9 +268,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return maxValue, max_action
 
     def minValue(self, gameState, index, depth, alpha, beta):
-        """
-        Returns the min utility action-score for min-agent with alpha-beta pruning
-        """
         legalMoves = gameState.getLegalActions(index)
         minValue = float("inf")
         min_action = ""
@@ -326,7 +310,69 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.getValue(gameState, 0, 0)[1]
+
+    def getValue(self, gameState, index, depth):
+        if (
+            len(gameState.getLegalActions(index)) == 0
+            or depth == self.depth
+            or gameState.isWin()
+            or gameState.isLose()
+        ):
+            return gameState.getScore(), ""
+
+        if index == 0:
+            return self.maxValue(gameState, index, depth)
+
+        return self.expValue(gameState, index, depth)
+
+    def maxValue(self, gameState, index, depth):
+        legalMoves = gameState.getLegalActions(index)
+        maxValue = float("-inf")
+        max_action = ""
+
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(index, action)
+            successor_index = index + 1
+            successor_depth = depth
+
+            if successor_index == gameState.getNumAgents():
+                successor_index = 0
+                successor_depth += 1
+
+            current_value = self.getValue(successor, successor_index, successor_depth)[
+                0
+            ]
+
+            if current_value > maxValue:
+                maxValue = current_value
+                max_action = action
+
+        return maxValue, max_action
+
+    def expValue(self, gameState, index, depth):
+        legalMoves = gameState.getLegalActions(index)
+        expValue = 0
+        min_action = ""
+
+        successor_probability = 1 / len(legalMoves)
+
+        for action in legalMoves:
+            successor = gameState.generateSuccessor(index, action)
+            successor_index = index + 1
+            successor_depth = depth
+
+            if successor_index == gameState.getNumAgents():
+                successor_index = 0
+                successor_depth += 1
+
+            current_value = self.getValue(successor, successor_index, successor_depth)[
+                0
+            ]
+
+            expValue += successor_probability * current_value
+
+        return expValue, min_action
 
 
 def betterEvaluationFunction(currentGameState: GameState):
