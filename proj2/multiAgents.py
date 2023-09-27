@@ -74,7 +74,6 @@ class ReflexAgent(Agent):
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
-        __newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
         score = -100 * len(newFood.asList())
@@ -374,31 +373,26 @@ def betterEvaluationFunction(currentGameState: GameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    foodList = currentGameState.getFood().asList()
-    ghostStates = currentGameState.getGhostStates()
+    foodPositions = currentGameState.getFood().asList()
+    ghostPositions = currentGameState.getGhostStates()
     pacmanPosition = currentGameState.getPacmanPosition()
-    closestFoodDistance = float("-inf")
-    foodEvaluation, ghostEvaluation, capsuleEvaluation = 0, 0, 0
 
-    for food in foodList:
-        foodDistance = manhattanDistance(pacmanPosition, food)
-        if closestFoodDistance < 0 or foodDistance < closestFoodDistance:
-            closestFoodDistance = foodDistance
-
-    if closestFoodDistance < 0:
-        foodEvaluation = 0
+    if not foodPositions:
+        closestFoodDistance = float("inf")
     else:
-        foodEvaluation = 1 / closestFoodDistance
+        closestFoodDistance = min(
+            manhattanDistance(pacmanPosition, food) for food in foodPositions
+        )
+    foodEvaluation = 1 / closestFoodDistance**2 if closestFoodDistance > 0 else 0
 
-    for ghost in ghostStates:
-        ghostPosition = ghost.getPosition()
-        ghostDistance = manhattanDistance(pacmanPosition, ghostPosition)
-        if ghost.scaredTimer <= 0:
-            if ghostDistance < 2:
-                ghostEvaluation -= (4 - ghostDistance) * 100
-        else:
-            capsuleEvaluation += 30
+    ghostEvaluation = sum(
+        -(4 - manhattanDistance(pacmanPosition, ghost.getPosition())) * 100
+        for ghost in ghostPositions
+        if ghost.scaredTimer <= 0
+        and manhattanDistance(pacmanPosition, ghost.getPosition()) < 2
+    )
+
+    capsuleEvaluation = sum(30 for ghost in ghostPositions if ghost.scaredTimer > 0)
 
     return (
         scoreEvaluationFunction(currentGameState)
