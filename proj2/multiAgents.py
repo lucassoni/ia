@@ -156,7 +156,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             or gameState.isWin()
             or gameState.isLose()
         ):
-            return gameState.getScore(), ""
+            return self.evaluationFunction(gameState), ""
 
         if index == 0:
             return self.maxValue(gameState, index, depth)
@@ -166,50 +166,46 @@ class MinimaxAgent(MultiAgentSearchAgent):
     def maxValue(self, gameState, index, depth):
         legalMoves = gameState.getLegalActions(index)
         maxValue = float("-inf")
-        max_action = ""
+        maxAction = ""
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(index, action)
-            successor_index = index + 1
-            successor_depth = depth
+            successorIndex = index + 1
+            successorDepth = depth
 
-            if successor_index == gameState.getNumAgents():
-                successor_index = 0
-                successor_depth += 1
+            if successorIndex == gameState.getNumAgents():
+                successorIndex = 0
+                successorDepth += 1
 
-            current_value = self.getValue(successor, successor_index, successor_depth)[
-                0
-            ]
+            currentValue = self.getValue(successor, successorIndex, successorDepth)[0]
 
-            if current_value > maxValue:
-                maxValue = current_value
-                max_action = action
+            if currentValue > maxValue:
+                maxValue = currentValue
+                maxAction = action
 
-        return maxValue, max_action
+        return maxValue, maxAction
 
     def minValue(self, gameState, index, depth):
         legalMoves = gameState.getLegalActions(index)
         minValue = float("inf")
-        min_action = ""
+        minAction = ""
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(index, action)
-            successor_index = index + 1
-            successor_depth = depth
+            successorIndex = index + 1
+            successorDepth = depth
 
-            if successor_index == gameState.getNumAgents():
-                successor_index = 0
-                successor_depth += 1
+            if successorIndex == gameState.getNumAgents():
+                successorIndex = 0
+                successorDepth += 1
 
-            current_value = self.getValue(successor, successor_index, successor_depth)[
-                0
-            ]
+            currentValue = self.getValue(successor, successorIndex, successorDepth)[0]
 
-            if current_value < minValue:
-                minValue = current_value
-                min_action = action
+            if currentValue < minValue:
+                minValue = currentValue
+                minAction = action
 
-        return minValue, min_action
+        return minValue, minAction
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -231,7 +227,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             or gameState.isWin()
             or gameState.isLose()
         ):
-            return gameState.getScore(), ""
+            return self.evaluationFunction(gameState), ""
 
         if index == 0:
             return self.maxValue(gameState, index, depth, alpha, beta)
@@ -241,60 +237,60 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
     def maxValue(self, gameState, index, depth, alpha, beta):
         legalMoves = gameState.getLegalActions(index)
         maxValue = float("-inf")
-        max_action = ""
+        maxAction = ""
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(index, action)
-            successor_index = index + 1
-            successor_depth = depth
+            successorIndex = index + 1
+            successorDepth = depth
 
-            if successor_index == gameState.getNumAgents():
-                successor_index = 0
-                successor_depth += 1
+            if successorIndex == gameState.getNumAgents():
+                successorIndex = 0
+                successorDepth += 1
 
-            current_value = self.getValue(
-                successor, successor_index, successor_depth, alpha, beta
+            currentValue = self.getValue(
+                successor, successorIndex, successorDepth, alpha, beta
             )[0]
 
-            if current_value > maxValue:
-                maxValue = current_value
-                max_action = action
+            if currentValue > maxValue:
+                maxValue = currentValue
+                maxAction = action
 
             alpha = max(alpha, maxValue)
 
             if maxValue > beta:
-                return maxValue, max_action
+                return maxValue, maxAction
 
-        return maxValue, max_action
+        return maxValue, maxAction
 
     def minValue(self, gameState, index, depth, alpha, beta):
         legalMoves = gameState.getLegalActions(index)
         minValue = float("inf")
-        min_action = ""
+        minAction = ""
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(index, action)
-            successor_index = index + 1
-            successor_depth = depth
+            successorIndex = index + 1
+            successorDepth = depth
 
-            if successor_index == gameState.getNumAgents():
-                successor_index = 0
-                successor_depth += 1
+            if successorIndex == gameState.getNumAgents():
+                successorIndex = 0
+                successorDepth += 1
 
-            current_value = self.getValue(
-                successor, successor_index, successor_depth, alpha, beta
+            currentValue = self.getValue(
+                successor, successorIndex, successorDepth, alpha, beta
             )[0]
 
-            if current_value < minValue:
-                minValue = current_value
-                min_action = action
+            if currentValue < minValue:
+                minValue = currentValue
+                minAction = action
 
             beta = min(beta, minValue)
 
             if minValue < alpha:
-                return minValue, min_action
+                return minValue, minAction
 
-        return minValue, min_action
+        return minValue, minAction
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -319,7 +315,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             or gameState.isWin()
             or gameState.isLose()
         ):
-            return gameState.getScore(), ""
+            return self.evaluationFunction(gameState), ""
 
         if index == 0:
             return self.maxValue(gameState, index, depth)
@@ -329,50 +325,46 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     def maxValue(self, gameState, index, depth):
         legalMoves = gameState.getLegalActions(index)
         maxValue = float("-inf")
-        max_action = ""
+        maxAction = ""
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(index, action)
-            successor_index = index + 1
-            successor_depth = depth
+            successorIndex = index + 1
+            successorDepth = depth
 
-            if successor_index == gameState.getNumAgents():
-                successor_index = 0
-                successor_depth += 1
+            if successorIndex == gameState.getNumAgents():
+                successorIndex = 0
+                successorDepth += 1
 
-            current_value = self.getValue(successor, successor_index, successor_depth)[
-                0
-            ]
+            currentValue = self.getValue(successor, successorIndex, successorDepth)[0]
 
-            if current_value > maxValue:
-                maxValue = current_value
-                max_action = action
+            if currentValue > maxValue:
+                maxValue = currentValue
+                maxAction = action
 
-        return maxValue, max_action
+        return maxValue, maxAction
 
     def expValue(self, gameState, index, depth):
         legalMoves = gameState.getLegalActions(index)
         expValue = 0
-        min_action = ""
+        minAction = ""
 
-        successor_probability = 1 / len(legalMoves)
+        successorProbability = 1 / len(legalMoves)
 
         for action in legalMoves:
             successor = gameState.generateSuccessor(index, action)
-            successor_index = index + 1
-            successor_depth = depth
+            successorIndex = index + 1
+            successorDepth = depth
 
-            if successor_index == gameState.getNumAgents():
-                successor_index = 0
-                successor_depth += 1
+            if successorIndex == gameState.getNumAgents():
+                successorIndex = 0
+                successorDepth += 1
 
-            current_value = self.getValue(successor, successor_index, successor_depth)[
-                0
-            ]
+            currentValue = self.getValue(successor, successorIndex, successorDepth)[0]
 
-            expValue += successor_probability * current_value
+            expValue += successorProbability * currentValue
 
-        return expValue, min_action
+        return expValue, minAction
 
 
 def betterEvaluationFunction(currentGameState: GameState):
@@ -383,7 +375,37 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    foodList = currentGameState.getFood().asList()
+    ghostStates = currentGameState.getGhostStates()
+    pacmanPosition = currentGameState.getPacmanPosition()
+    closestFoodDistance = float("-inf")
+    foodEvaluation, ghostEvaluation, capsuleEvaluation = 0, 0, 0
+
+    for food in foodList:
+        foodDistance = manhattanDistance(pacmanPosition, food)
+        if closestFoodDistance < 0 or foodDistance < closestFoodDistance:
+            closestFoodDistance = foodDistance
+
+    if closestFoodDistance < 0:
+        foodEvaluation = 0
+    else:
+        foodEvaluation = 1 / closestFoodDistance
+
+    for ghost in ghostStates:
+        ghostPosition = ghost.getPosition()
+        ghostDistance = manhattanDistance(pacmanPosition, ghostPosition)
+        if ghost.scaredTimer <= 0:
+            if ghostDistance < 2:
+                ghostEvaluation -= (4 - ghostDistance) * 100
+        else:
+            capsuleEvaluation += 30
+
+    return (
+        scoreEvaluationFunction(currentGameState)
+        + foodEvaluation
+        + capsuleEvaluation
+        + ghostEvaluation
+    )
 
 
 # Abbreviation
